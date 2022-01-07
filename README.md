@@ -1,4 +1,10 @@
-# express-auth-template
+# Netflixify - API
+
+## ERD
+![ERD](imgs/p4-erd.png)
+
+## RESTful Routes
+![rest-routes](imgs/rest-routes.png)
 
 A template for starting projects with `express` as an API. Includes
 authentication and common middlewares.
