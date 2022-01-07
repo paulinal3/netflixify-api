@@ -1,7 +1,18 @@
 const mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
 const userSchema = new mongoose.Schema(
 	{
+		firstName: {
+			type: String,
+			required: true,
+			minlength: 3,
+			maxlength: 50
+		},
+		lastName: {
+			type: String,
+			required: true
+		},
 		email: {
 			type: String,
 			required: true,
@@ -12,6 +23,14 @@ const userSchema = new mongoose.Schema(
 			required: true,
 		},
 		token: String,
+		videos: [{
+			type: Schema.Types.ObjectId,
+			ref: 'Video'
+		}],
+		playlists: [{
+			type: Schema.Types.ObjectId,
+			ref: 'Playlist'
+		}]
 	},
 	{
 		timestamps: true,
