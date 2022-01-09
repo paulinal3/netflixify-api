@@ -13,10 +13,17 @@ router.get('/playlists', requireToken, (req, res, next) => {
     Playlist.find({ owner: req.user.id })
         .then(handle404)
         .then(foundPlaylists => {
-            return foundPlaylists.map(playlist => playist.toObject())
+            return foundPlaylists.map(playlist => playlist.toObject())
         })
         .then(foundPlaylists => res.status(200).json({ foundPlaylists }))
         .catch(next)
+})
+
+// get route to show one playlist by current user
+router.get('/playlists/:id', requireToken, (req, res, next) => {
+    Playlist.findById(req.params.id)
+        .then(handle404)
+        .then(foundPlaylist => res.status(200).json({ playlist: foundPlaylist.toObject() }))
 })
 
 // post route to create a playlist
