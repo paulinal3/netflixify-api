@@ -44,4 +44,19 @@ router.post('/playlists', requireToken, (req, res, next) => {
         .catch(next)
 })
 
+// patch route to edit a playlist
+router.patch('/playlists/:id', requireToken, (req, res, next) => {
+    delete req.body.playlist.owner
+
+    Playlist.findById(req.params.id)
+        .then(handle404)
+        .then(foundPlaylist => {
+            console.log('this is the found playlist\n', foundPlaylist)
+            requireOwnership(req, foundPlaylist)
+            return foundPlaylist.updateOne(req.body.playlist)
+        })
+        .then(() => res.sendStatus(204))
+        .catch(next)
+})
+
 module.exports = router
