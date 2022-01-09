@@ -36,14 +36,14 @@ const videoSchema = new mongoose.Schema(
 			required: true
 		},
 		rating: {
-			type: D
+			type: Number
 		},
 		imbdid: {
 			type: String,
 			required: true
 		},
 		watched: Boolean,
-		notes: <String></String>
+		notes: String
 	},
 	{
 		timestamps: true,

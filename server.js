@@ -2,10 +2,11 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
+const methodOverride = require('method-override')
 
 // require route files
-const exampleRoutes = require('./app/routes/example_routes')
 const userRoutes = require('./app/routes/user_routes')
+const videoRoutes = require('./app/routes/video_routes')
 
 // require middleware
 const errorHandler = require('./lib/error_handler')
@@ -58,6 +59,8 @@ app.use(auth)
 // JS objects before they reach the route files.
 // The method `.use` sets up middleware for the Express application
 app.use(express.json())
+
+app.use(methodOverride('_method'))
 // this parses requests sent by `$.ajax`, which use a different content type
 app.use(express.urlencoded({ extended: true }))
 
@@ -65,8 +68,8 @@ app.use(express.urlencoded({ extended: true }))
 app.use(requestLogger)
 
 // register route files
-app.use(exampleRoutes)
 app.use(userRoutes)
+app.use(videoRoutes)
 
 // register error handling middleware
 // note that this comes after the route middlewares, because it needs to be

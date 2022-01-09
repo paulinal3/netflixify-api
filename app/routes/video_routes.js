@@ -3,8 +3,8 @@ const express = require('express')
 // Passport docs: http://www.passportjs.org/docs/
 const passport = require('passport')
 
-// pull in Mongoose model for examples
-const Example = require('../models/example')
+// pull in Mongoose model for videos
+const Video = require('../models/video')
 
 // this is a collection of methods that help us detect situations when we need
 // to throw a custom error
