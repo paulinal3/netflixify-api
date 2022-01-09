@@ -7,6 +7,7 @@ const methodOverride = require('method-override')
 // require route files
 const userRoutes = require('./app/routes/user_routes')
 const videoRoutes = require('./app/routes/video_routes')
+const playlistRoutes = require('./app/routes/playlist_routes')
 
 // require middleware
 const errorHandler = require('./lib/error_handler')
@@ -70,6 +71,7 @@ app.use(requestLogger)
 // register route files
 app.use(userRoutes)
 app.use(videoRoutes)
+app.use(playlistRoutes)
 
 // register error handling middleware
 // note that this comes after the route middlewares, because it needs to be
