@@ -59,4 +59,15 @@ router.patch('/playlists/:id', requireToken, (req, res, next) => {
         .catch(next)
 })
 
+router.delete('/playlists/:id', requireToken, (req, res, next) => {
+    Playlist.findById(req.params.id)
+        .then(handle404)
+        .then(foundPlaylist => {
+            requireOwnership(req, foundPlaylist)
+            foundPlaylist.deleteOne()
+        })
+        .then(() => res.sendStatus(204))
+        .catch(next)
+})
+
 module.exports = router
