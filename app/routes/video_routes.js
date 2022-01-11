@@ -18,7 +18,7 @@ const handle404 = customErrors.handle404
 const requireOwnership = customErrors.requireOwnership
 
 // this is middleware that will remove blank fields from `req.body`, e.g.
-// { example: { title: '', text: 'foo' } } -> { example: { text: 'foo' } }
+// { video: { title: '', text: 'foo' } } -> { video: { text: 'foo' } }
 const removeBlanks = require('../../lib/remove_blank_fields')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
@@ -44,7 +44,7 @@ router.get('/videos', requireToken, (req, res, next) => {
 		.catch(next)
 })
 
-// get route to display the index of videos for a specifc playlist
+// get route to display the index of videos for a specific playlist
 router.get('/:playlistId/videos', requireToken, (req, res, next) => {
 	Video.find({ playlist: req.params.playlistId })
 		.then(handle404)
@@ -65,7 +65,7 @@ router.get('/videos/:id', requireToken, (req, res, next) => {
 	// req.params.id will be set based on the `:id` in the route
 	Video.findById(req.params.id)
 		.then(handle404)
-		// if `findById` is succesful, respond with 200 and "example" JSON
+		// if `findById` is succesful, respond with 200 and "video" JSON
 		.then(foundVideo => res.status(200).json({ video: foundVideo.toObject() }))
 		// if an error occurs, pass it to the handler
 		.catch(next)
@@ -75,11 +75,16 @@ router.get('/videos/:id', requireToken, (req, res, next) => {
 router.post('/:playlistId/videos', requireToken, (req, res, next) => {
 	// set owner of new video to be current user
 	req.body.video.owner = req.user.id
+	// set playlist of new video to selected playlist
+	// let currentPlaylist = req.body.video.playlists
+	// currentPlaylist.push(req.params.playlisId)
 
 	let currentUser = req.user
 
 	Video.create(req.body.video)
 		.then(createdVideo => {
+			createdVideo.playlists.push(req.params.playlistId)
+			createdVideo.save()
 			// push created video id into the current user's video arr of obj ref
 			currentUser.videos.push(createdVideo._id)
 			// save the current user
@@ -102,7 +107,7 @@ router.post('/:playlistId/videos', requireToken, (req, res, next) => {
 router.patch('/videos/:id', requireToken, removeBlanks, (req, res, next) => {
 	// if the client attempts to change the `owner` property by including a new
 	// owner, prevent that by deleting that key/value pair
-	delete req.body.example.owner
+	delete req.body.video.owner
 
 	Video.findById(req.params.id)
 		.then(handle404)
@@ -112,7 +117,7 @@ router.patch('/videos/:id', requireToken, removeBlanks, (req, res, next) => {
 			requireOwnership(req, foundVideo)
 
 			// pass the result of Mongoose's `.update` to the next `.then`
-			return video.updateOne(req.body.video)
+			return foundVideo.updateOne(req.body.video)
 		})
 		// if that succeeded, return 204 and no JSON
 		.then(() => res.sendStatus(204))
@@ -125,10 +130,10 @@ router.delete('/videos/:id', requireToken, (req, res, next) => {
 	Video.findById(req.params.id)
 		.then(handle404)
 		.then(foundVideo => {
-			// throw an error if current user doesn't own `example`
+			// throw an error if current user doesn't own `video`
 			requireOwnership(req, foundVideo)
-			// delete the example ONLY IF the above didn't throw
-			example.deleteOne()
+			// delete the video ONLY IF the above didn't throw
+			foundVideo.deleteOne()
 		})
 		// send back 204 and no content if the deletion succeeded
 		.then(() => res.sendStatus(204))
