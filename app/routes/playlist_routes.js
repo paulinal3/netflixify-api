@@ -5,8 +5,9 @@ const customErrors = require('../../lib/custom_errors')
 const handle404 = customErrors.handle404
 const requireOwnership = customErrors.requireOwnership
 const removeBlanks = require('../../lib/remove_blank_fields')
-const Playlist = require('../models/playlist')
 const requireToken = passport.authenticate('bearer', { session: false })
+
+const Playlist = require('../models/playlist')
 
 // get route to display index of user's playlists
 router.get('/playlists', requireToken, (req, res, next) => {
@@ -45,7 +46,7 @@ router.post('/playlists', requireToken, (req, res, next) => {
 })
 
 // patch route to edit a playlist
-router.patch('/playlists/:id', requireToken, (req, res, next) => {
+router.patch('/playlists/:id', requireToken, removeBlanks, (req, res, next) => {
     delete req.body.playlist.owner
 
     Playlist.findById(req.params.id)
@@ -59,6 +60,7 @@ router.patch('/playlists/:id', requireToken, (req, res, next) => {
         .catch(next)
 })
 
+// delete route to destroy a playlist
 router.delete('/playlists/:id', requireToken, (req, res, next) => {
     Playlist.findById(req.params.id)
         .then(handle404)

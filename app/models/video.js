@@ -12,38 +12,48 @@ const videoSchema = new mongoose.Schema(
 			required: true,
 		},
 		netflixid: {
-			type: Number,
+			type: String,
 			required: true,
 		},
 		image: {
 			type: String,
 			required: true
 		},
-		genre: {
-			type: Array,
+		largeimage: {
+			type: String,
 			required: true
+		},
+		genre: {
+			type: Array
 		},
 		type: {
 			type: String,
 			required: true
 		},
 		runtime: {
+			type: String
+		},
+		released: {
 			type: String,
 			required: true
 		},
-		released: {
-			type: Number,
-			required: true
-		},
 		rating: {
-			type: Number
+			type: String
 		},
-		imbdid: {
+		imdbid: {
 			type: String,
 			required: true
 		},
 		watched: Boolean,
-		notes: String
+		notes: String,
+        owner: {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+		playlists: [{
+			type: Schema.Types.ObjectId,
+			ref: 'Playlist'
+		}]
 	},
 	{
 		timestamps: true,
