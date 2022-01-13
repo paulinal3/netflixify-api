@@ -49,6 +49,7 @@ router.get('/:playlistId/videos', requireToken, (req, res, next) => {
 	Video.find({ playlist: req.params.playlistId })
 		.then(handle404)
 		.then(foundVideos => {
+			console.log('these are the found videos for the playlist\n', foundVideos)
 			// `videos` will be an array of Mongoose documents
 			// we want to convert each one to a POJO, so we use `.map` to
 			// apply `.toObject` to each one
@@ -57,6 +58,17 @@ router.get('/:playlistId/videos', requireToken, (req, res, next) => {
 		// respond with status 200 and JSON of the videos
 		.then(foundVideos => res.status(200).json({ videos: foundVideos }))
 		// if an error occurs, pass it to the handler
+		.catch(next)
+})
+
+// get route to display index of all watched videos
+router.get('/videos/watched', requireToken, (req, res, next) => {
+	Video.find({ watched: true })
+		.then(handle404)
+		.then(foundWatchedVids => {
+			return foundWatchedVids.map(video => video.toObject())
+		})
+		.then(foundWatchedVids => res.status(200).json({ video: foundWatchedVids }))
 		.catch(next)
 })
 
@@ -70,6 +82,7 @@ router.get('/videos/:id', requireToken, (req, res, next) => {
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
+
 
 // post route to create a video
 router.post('/:playlistId/videos', requireToken, (req, res, next) => {

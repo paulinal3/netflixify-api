@@ -21,7 +21,6 @@ const videoSchema = new mongoose.Schema(
 		},
 		largeimage: {
 			type: String,
-			required: true
 		},
 		genre: {
 			type: Array
@@ -41,10 +40,12 @@ const videoSchema = new mongoose.Schema(
 			type: String
 		},
 		imdbid: {
-			type: String,
-			required: true
+			type: String
 		},
-		watched: Boolean,
+		watched: {
+			type: Boolean,
+			default: false
+		},
 		notes: String,
         owner: {
             type: Schema.Types.ObjectId,

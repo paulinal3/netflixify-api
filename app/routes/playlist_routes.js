@@ -12,6 +12,7 @@ const Playlist = require('../models/playlist')
 // get route to display index of user's playlists
 router.get('/playlists', requireToken, (req, res, next) => {
     Playlist.find({ owner: req.user.id })
+    .populate('videos', 'image')
         .then(handle404)
         .then(foundPlaylists => {
             return foundPlaylists.map(playlist => playlist.toObject())
@@ -23,6 +24,7 @@ router.get('/playlists', requireToken, (req, res, next) => {
 // get route to show one playlist by current user
 router.get('/playlists/:id', requireToken, (req, res, next) => {
     Playlist.findById(req.params.id)
+        .populate('videos')
         .then(handle404)
         .then(foundPlaylist => res.status(200).json({ playlist: foundPlaylist.toObject() }))
 })
