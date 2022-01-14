@@ -20,6 +20,7 @@ const requireOwnership = customErrors.requireOwnership
 // this is middleware that will remove blank fields from `req.body`, e.g.
 // { video: { title: '', text: 'foo' } } -> { video: { text: 'foo' } }
 const removeBlanks = require('../../lib/remove_blank_fields')
+const playlist = require('../models/playlist')
 // passing this as a second argument to `router.<verb>` will make it
 // so that a token MUST be passed for that route to be available
 // it will also set `req.user`
@@ -153,5 +154,30 @@ router.delete('/videos/:id', requireToken, (req, res, next) => {
 		// if an error occurs, pass it to the handler
 		.catch(next)
 })
+
+// // delete route to destroy a video
+// router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
+// 	// find the current playlist
+// 	Playlist.findById(req.params.playlistId)
+// 		.then(handle404)
+// 		.then(foundPlaylist => {
+// 			requireOwnership(req, foundPlaylist)
+// 			// remove the to be deleted video from the arr of obj ref
+// 			foundPlaylist.videos.pull(req.params.id)
+// 			// find the video
+// 			Video.findById(req.params.id)
+// 				.then(handle404)
+// 				.then(foundVideo => {
+// 					// throw an error if current user doesn't own `video`
+// 					requireOwnership(req, foundVideo)
+// 					// delete the video ONLY IF the above didn't throw
+// 					foundVideo.deleteOne()
+// 				})
+// 				// send back 204 and no content if the deletion succeeded
+// 				.then(() => res.sendStatus(204))
+// 				// if an error occurs, pass it to the handler
+// 				.catch(next)
+// 		})
+// })
 
 module.exports = router
