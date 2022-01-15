@@ -33,6 +33,10 @@ mongoose.connect(db, {
 	useNewUrlParser: true,
 })
 
+mongoose.connection.once('open', () => {
+	console.log(`Connected to MongoDB at ${mongoose.connection.host}:${mongoose.connection.port}`)
+})
+
 // instantiate express application object
 const app = express()
 
