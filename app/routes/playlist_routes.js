@@ -1,13 +1,13 @@
 const express = require('express')
-const router = express.Router()
 const passport = require('passport')
 const customErrors = require('../../lib/custom_errors')
+const removeBlanks = require('../../lib/remove_blank_fields')
+const Playlist = require('../models/playlist')
+
+const router = express.Router()
 const handle404 = customErrors.handle404
 const requireOwnership = customErrors.requireOwnership
-const removeBlanks = require('../../lib/remove_blank_fields')
 const requireToken = passport.authenticate('bearer', { session: false })
-
-const Playlist = require('../models/playlist')
 
 // get route to display index of user's playlists
 router.get('/playlists', requireToken, (req, res, next) => {

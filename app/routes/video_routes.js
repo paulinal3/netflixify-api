@@ -64,7 +64,10 @@ router.get('/:playlistId/videos', requireToken, (req, res, next) => {
 
 // get route to display index of all watched videos
 router.get('/videos/watched', requireToken, (req, res, next) => {
-	Video.find({ watched: true })
+	Video.find({
+        watched: true,
+        owner: req.user.id
+    })
 		.then(handle404)
 		.then(foundWatchedVids => {
 			return foundWatchedVids.map(video => video.toObject())
