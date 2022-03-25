@@ -40,7 +40,6 @@ router.post('/playlists', requireToken, (req, res, next) => {
         .then(createdPlaylist => {
             // push created playlist id into the current user's playlist arr of obj ref
             currentUser.playlists.push(createdPlaylist._id)
-            // save the current user
             currentUser.save()
             res.status(201).json({ playlist: createdPlaylist.toObject() })
         })
