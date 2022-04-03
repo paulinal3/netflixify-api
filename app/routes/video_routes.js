@@ -149,8 +149,10 @@ router.patch('/videos/:id', requireToken, removeBlanks, (req, res, next) => {
             requireOwnership(req, foundVideo)
 
             // pass the result of Mongoose's `.update` to the next `.then`
-            console.log("req\n", req.body.video)
+            // console.log("before\n", foundVideo)
+            // console.log("req\n", req.body.video)
             return foundVideo.updateOne(req.body.video)
+            // console.log("vid\n", foundVideo)
         })
         // if that succeeded, return 204 and no JSON
         .then(() => res.sendStatus(204))
@@ -159,6 +161,22 @@ router.patch('/videos/:id', requireToken, removeBlanks, (req, res, next) => {
 })
 
 // delete route to destroy a video
+// router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
+//     Video.findById(req.params.id)
+//         .then(handle404)
+//         .then(foundVideo => {
+//             // throw an error if current user doesn't own `video`
+//             requireOwnership(req, foundVideo)
+//             // delete the video ONLY IF the above didn't throw
+//             foundVideo.deleteOne()
+//             console.log("found vid\n", foundVideo)
+//         })
+//         // send back 204 and no content if the deletion succeeded
+//         .then(() => res.sendStatus(204))
+//         // if an error occurs, pass it to the handler
+//         .catch(next)
+// })
+
 router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
     Video.findById(req.params.id)
         .then(handle404)
@@ -168,6 +186,28 @@ router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
             // delete the video ONLY IF the above didn't throw
             // foundVideo.deleteOne()
             console.log("found vid\n", foundVideo)
+            // remove playlistId from video.playlist arr
+            const playlistIdIdx = foundVideo.playlists.indexOf(req.params.playlistId)
+            foundVideo.playlists.splice(playlistIdIdx, 1)
+            foundVideo.save()
+            console.log("new video\n", foundVideo)
+            // if watched status if false AND the video.playlist arr is empty then remove video from user
+            if (foundVideo.playlists.length === 0 && !foundVideo.watched) {
+                console.log("user\m", req.user)
+                const videoIdIdx = req.user.videos.indexOf(req.params.id)
+                req.user.videos.splice(videoIdIdx, 1)
+                req.user.save()
+                console.log("new user\n", req.user)
+            }
+            // remove video from playlist arr
+            Playlist.findById(req.params.playlistId)
+                .then(foundPlaylist => {
+                    console.log("play", foundPlaylist)
+                    const videoIdIdx = foundPlaylist.videos.indexOf(req.params.id)
+                    foundPlaylist.videos.splice(videoIdIdx, 1)
+                    foundPlaylist.save()
+                    console.log("save play", foundPlaylist)
+                })
         })
         // send back 204 and no content if the deletion succeeded
         .then(() => res.sendStatus(204))
