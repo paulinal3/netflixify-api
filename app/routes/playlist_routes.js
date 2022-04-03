@@ -77,11 +77,15 @@ router.delete('/playlists/:id', requireToken, (req, res, next) => {
                 Video.findById(vid)
                     .then(foundVid => {
                         console.log("before vid", foundVid)
-                        foundVid.playlists.splice(playlistIdIdx, 1)
+                        const playlistIdx = foundVid.playlists.indexOf(req.params.id)
+                        foundVid.playlists.splice(playlistIdx, 1)
+                        console.log("after vid splice", foundVid)
                         if (foundVid.playlists.length === 0 && !foundVid.watched) {
                             const videoIdIdx = req.user.videos.indexOf(foundVid._id)
+                            console.log(foundVid._id)
+                            console.log(videoIdIdx)
                             req.user.videos.splice(videoIdIdx, 1)
-                            req.user.save()
+                            // req.user.save()
                             foundVid.deleteOne()
                             console.log("conditional", req.user)
                         } else {
