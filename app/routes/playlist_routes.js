@@ -3,6 +3,7 @@ const passport = require('passport')
 const customErrors = require('../../lib/custom_errors')
 const removeBlanks = require('../../lib/remove_blank_fields')
 const Playlist = require('../models/playlist')
+const Video = require("../models/video")
 
 const router = express.Router()
 const handle404 = customErrors.handle404
@@ -67,6 +68,30 @@ router.delete('/playlists/:id', requireToken, (req, res, next) => {
         .then(handle404)
         .then(foundPlaylist => {
             requireOwnership(req, foundPlaylist)
+            console.log("before user", req.user)
+            // remove from user's playlist arr obj
+            const playlistIdIdx = req.user.playlists.indexOf(req.params.id)
+            req.user.playlists.splice(playlistIdIdx, 1)
+            console.log("after user", req.user)
+            foundPlaylist.videos.forEach(vid => {
+                Video.findById(vid)
+                    .then(foundVid => {
+                        console.log("before vid", foundVid)
+                        foundVid.playlists.splice(playlistIdIdx, 1)
+                        if (foundVid.playlists.length === 0 && !foundVid.watched) {
+                            const videoIdIdx = req.user.videos.indexOf(foundVid._id)
+                            req.user.videos.splice(videoIdIdx, 1)
+                            req.user.save()
+                            foundVid.deleteOne()
+                            console.log("conditional", req.user)
+                        } else {
+                            foundVid.save()
+                            console.log("after vid", foundVid)
+                        }
+                    })
+            })
+            req.user.save()
+            console.log("end user", req.user)
             foundPlaylist.deleteOne()
         })
         .then(() => res.sendStatus(204))

@@ -149,12 +149,8 @@ router.patch('/videos/:id', requireToken, removeBlanks, (req, res, next) => {
             requireOwnership(req, foundVideo)
 
             // pass the result of Mongoose's `.update` to the next `.then`
-            console.log("before\n", foundVideo)
-            console.log("req\n", req.body.video)
             foundVideo.watched = req.body.video.watched
             foundVideo.save()
-            // foundVideo.updateOne({ watched: true })
-            console.log("after update\n", foundVideo)
         })
         // if that succeeded, return 204 and no JSON
         .then(() => res.sendStatus(204))
@@ -174,16 +170,18 @@ router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
             // remove playlistId from video.playlist arr
             const playlistIdIdx = foundVideo.playlists.indexOf(req.params.playlistId)
             foundVideo.playlists.splice(playlistIdIdx, 1)
-            foundVideo.save()
-            console.log("new video\n", foundVideo)
             // if watched status if false AND the video.playlist arr is empty then remove video from user
             if (foundVideo.playlists.length === 0 && !foundVideo.watched) {
                 console.log("user\m", req.user)
                 const videoIdIdx = req.user.videos.indexOf(req.params.id)
                 req.user.videos.splice(videoIdIdx, 1)
                 req.user.save()
+                foundVideo.deleteOne()
                 console.log("new user\n", req.user)
+            } else {
+                foundVideo.save()
             }
+            console.log("new video\n", foundVideo)
             // remove video from playlist arr
             Playlist.findById(req.params.playlistId)
                 .then(foundPlaylist => {
