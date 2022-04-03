@@ -32,14 +32,11 @@ router.get('/playlists/:id', requireToken, (req, res, next) => {
 
 // post route to create a playlist
 router.post('/playlists', requireToken, (req, res, next) => {
-    // set the owner of playlist to the current user
     req.body.playlist.owner = req.user.id
-
     let currentUser = req.user
 
     Playlist.create(req.body.playlist)
         .then(createdPlaylist => {
-            // push created playlist id into the current user's playlist arr of obj ref
             currentUser.playlists.push(createdPlaylist._id)
             currentUser.save()
             res.status(201).json({ playlist: createdPlaylist.toObject() })
@@ -68,34 +65,23 @@ router.delete('/playlists/:id', requireToken, (req, res, next) => {
         .then(handle404)
         .then(foundPlaylist => {
             requireOwnership(req, foundPlaylist)
-            console.log("before user", req.user)
-            // remove from user's playlist arr obj
             const playlistIdIdx = req.user.playlists.indexOf(req.params.id)
             req.user.playlists.splice(playlistIdIdx, 1)
-            console.log("after user", req.user)
             foundPlaylist.videos.forEach(vid => {
                 Video.findById(vid)
                     .then(foundVid => {
-                        console.log("before vid", foundVid)
                         const playlistIdx = foundVid.playlists.indexOf(req.params.id)
                         foundVid.playlists.splice(playlistIdx, 1)
-                        console.log("after vid splice", foundVid)
                         if (foundVid.playlists.length === 0 && !foundVid.watched) {
                             const videoIdIdx = req.user.videos.indexOf(foundVid._id)
-                            console.log(foundVid._id)
-                            console.log(videoIdIdx)
                             req.user.videos.splice(videoIdIdx, 1)
-                            // req.user.save()
                             foundVid.deleteOne()
-                            console.log("conditional", req.user)
                         } else {
                             foundVid.save()
-                            console.log("after vid", foundVid)
                         }
                     })
             })
             req.user.save()
-            console.log("end user", req.user)
             foundPlaylist.deleteOne()
         })
         .then(() => res.sendStatus(204))
