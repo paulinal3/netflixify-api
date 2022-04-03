@@ -149,33 +149,18 @@ router.patch('/videos/:id', requireToken, removeBlanks, (req, res, next) => {
             requireOwnership(req, foundVideo)
 
             // pass the result of Mongoose's `.update` to the next `.then`
-            // console.log("before\n", foundVideo)
-            // console.log("req\n", req.body.video)
-            return foundVideo.updateOne(req.body.video)
-            // console.log("vid\n", foundVideo)
+            console.log("before\n", foundVideo)
+            console.log("req\n", req.body.video)
+            foundVideo.watched = req.body.video.watched
+            foundVideo.save()
+            // foundVideo.updateOne({ watched: true })
+            console.log("after update\n", foundVideo)
         })
         // if that succeeded, return 204 and no JSON
         .then(() => res.sendStatus(204))
         // if an error occurs, pass it to the handler
         .catch(next)
 })
-
-// delete route to destroy a video
-// router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
-//     Video.findById(req.params.id)
-//         .then(handle404)
-//         .then(foundVideo => {
-//             // throw an error if current user doesn't own `video`
-//             requireOwnership(req, foundVideo)
-//             // delete the video ONLY IF the above didn't throw
-//             foundVideo.deleteOne()
-//             console.log("found vid\n", foundVideo)
-//         })
-//         // send back 204 and no content if the deletion succeeded
-//         .then(() => res.sendStatus(204))
-//         // if an error occurs, pass it to the handler
-//         .catch(next)
-// })
 
 router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
     Video.findById(req.params.id)
@@ -214,30 +199,5 @@ router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
         // if an error occurs, pass it to the handler
         .catch(next)
 })
-
-// // delete route to destroy a video
-// router.delete('/:playlistId/videos/:id', requireToken, (req, res, next) => {
-// 	// find the current playlist
-// 	Playlist.findById(req.params.playlistId)
-// 		.then(handle404)
-// 		.then(foundPlaylist => {
-// 			requireOwnership(req, foundPlaylist)
-// 			// remove the to be deleted video from the arr of obj ref
-// 			foundPlaylist.videos.pull(req.params.id)
-// 			// find the video
-// 			Video.findById(req.params.id)
-// 				.then(handle404)
-// 				.then(foundVideo => {
-// 					// throw an error if current user doesn't own `video`
-// 					requireOwnership(req, foundVideo)
-// 					// delete the video ONLY IF the above didn't throw
-// 					foundVideo.deleteOne()
-// 				})
-// 				// send back 204 and no content if the deletion succeeded
-// 				.then(() => res.sendStatus(204))
-// 				// if an error occurs, pass it to the handler
-// 				.catch(next)
-// 		})
-// })
 
 module.exports = router
