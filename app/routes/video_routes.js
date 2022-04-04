@@ -99,20 +99,15 @@ router.post('/:playlistId/videos', requireToken, (req, res, next) => {
         .catch(next)
 })
 
-// for (let i = 0; i < 50; i++) {
-//     axios.get(`https://unogs-unogs-v1.p.rapidapi.com/aaapi.cgi?q=&cl=78&p=${i}&t=ns&st=adv`)
-//         .then(apiRes => {
-//             for (let i = 0; i < apiRes.length; i++) {
-//                 router.post("/videos", requireToken, (req, res) => {
-//                     req.body.video.owner = req.user.id
-//                     Video.create(req.body.video[i])
-//                         .then(createdVideo => {
+router.post("/:adminId/admin/videos", requireToken, (req, res, next) => {
+    req.body.video.owner = req.user.id
 
-//                         })
-//                 })
-//             }
-//         })
-// }
+    Video.create(req.body.video)
+        .then(createdVideo => {
+            res.status(201).json({ video: createdVideo.toObject() })
+        })
+        .catch(next)
+})
 
 // patch route to edit if a video has been watched
 router.patch('/videos/:id', requireToken, removeBlanks, (req, res, next) => {
